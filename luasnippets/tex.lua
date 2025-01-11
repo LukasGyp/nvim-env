@@ -35,7 +35,7 @@ for _, env_name in pairs(environments) do
   table.insert(snips, s('\\'..env_name, {
     t({
       '\\begin{' .. env_name .. '}',
-      '',
+      '  ',
     }), i(1),
     t({
       '',
