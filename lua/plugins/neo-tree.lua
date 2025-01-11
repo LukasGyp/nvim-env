@@ -6,6 +6,9 @@ return {
     "nvim-tree/nvim-web-devicons",
     "MunifTanjim/nui.nvim",
   },
+  keys = {
+    { "<C-e>", mode = "n" },
+  },
   config = function()
     require("neo-tree").setup({
       close_if_last_window = true,
