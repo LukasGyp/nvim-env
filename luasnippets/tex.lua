@@ -3,7 +3,21 @@ local s = ls.snippet
 local t = ls.text_node
 local i = ls.insert_node
 
-return {
+local environments = {
+  'equation',
+  'equation*',
+  'dfn',
+  'thm',
+  'lem',
+  'prop',
+  'cor',
+  'rem',
+  'ex',
+  'pmatrix',
+  'proof',
+}
+
+local snips = {
   s('init', {
     t({
       '\\documentclass{article}',
@@ -16,3 +30,18 @@ return {
     }),
   }),
 }
+
+for _, env_name in pairs(environments) do
+  table.insert(snips, s('\\'..env_name, {
+    t({
+      '\\begin{' .. env_name .. '}',
+      '',
+    }), i(1),
+    t({
+      '',
+      '\\end{' .. env_name .. '}',
+    })
+  }))
+end
+
+return snips
