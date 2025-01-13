@@ -6,6 +6,7 @@ local i = ls.insert_node
 local environments = {
   'equation',
   'equation*',
+  'align',
   'dfn',
   'thm',
   'lem',
