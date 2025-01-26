@@ -6,8 +6,8 @@ return {
   },
   init = function()
     vim.g.vimtex_view_method = 'general'
-    vim.g.vimtex_view_general_viewer = 'cmd.exe'
-    vim.g.vimtex_view_general_options = '/c start "" /B sioyek @pdf'
+    vim.g.vimtex_view_general_viewer = 'sioyek'
+    vim.g.vimtex_view_general_options = '@pdf'
 
     vim.g.vimtex_view_forward_search_on_start = 1
 
