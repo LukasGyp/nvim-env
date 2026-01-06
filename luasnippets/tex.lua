@@ -16,6 +16,8 @@ local environments = {
   'ex',
   'pmatrix',
   'proof',
+  'itemize',
+  'enumerate'
 }
 
 local snips = {
