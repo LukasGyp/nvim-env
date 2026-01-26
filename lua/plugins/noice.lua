@@ -4,7 +4,13 @@ return {
     "BufReadPre",
     "BufNewFile",
   },
-  opts = {},
+  opts = {
+    lsp = {
+      signature = {
+	enabled = false,
+      },
+    },
+  },
   dependencies = {
     'MunifTanjim/nui.nvim',
     'rcarriga/nvim-notify',
