@@ -9,6 +9,11 @@ return {
     require("nvim-treesitter.configs").setup({
       ensure_installed = {
 	"python",
+	"c",
+	"cpp",
+	"rust",
+	"tsx",
+	"typescript",
       },
       sync_install = false,
       highlight = { enable = true },
