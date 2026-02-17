@@ -1,103 +1,70 @@
 return {
   'neovim/nvim-lspconfig',
-  ft = {
-    "c",
-    "cpp",
-    "python",
-    "rust",
-    "typescript",
-    "typescriptreact",
+  event = {
+    "BufReadPre",
+    "BufNewFile"
   },
   config = function()
-    vim.lsp.config('basedpyright', {
-      basedpyright = {
-	analysis = {
-	  typeCheckingMode = "standard",
-	  autoSearchPaths = true,
-	  useLibraryCodeForTypes = true,
-	  diagnosticMode = "openFilesOnly",
-	},
-      },
-    })
-    vim.lsp.enable('basedpyright')
+    -- nvim-lspconfig.lua (or wherever you configure LSP)
+    -- Put this somewhere that is guaranteed to run (plugin config).
 
-    local caps = vim.lsp.protocol.make_client_capabilities()
-    caps.general = caps.general or {}
-    caps.general.positionEncodings = {"utf-16"}
+    local function map(bufnr, mode, lhs, rhs, desc)
+      vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, silent = true, desc = desc })
+    end
 
-    vim.lsp.config('ruff', {
-      capabilities = caps,
-      on_attach = function(client, bufnr)
-	client.server_capabilities.hoverProvider = false
-      end,
-    })
-    vim.lsp.enable('ruff')
-    vim.api.nvim_create_autocmd("BufWritePre", {
-      pattern = "*.py",
+    vim.api.nvim_create_autocmd("LspAttach", {
+      group = vim.api.nvim_create_augroup("UserLspKeymaps", { clear = true }),
       callback = function(args)
-	vim.lsp.buf.format({
-	  bufnr = args.buf,
-	  async = false,
-	  filter = function(client)
-	    return client.name == "ruff"
-	  end,
-	})
-      end,
-    })
-    
-    vim.lsp.config('rust_analyzer', {
-      on_attach = function(client, bufnr)
-	vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
-      end,
-      settings = {
-	["rust-analyzer"] = {
-	  imports = {
-	    granularity = {
-	      group = "module",
-	    },
-	    prefix = "self",
-	  },
-	  cargo = {
-	    buildScripts = {
-	      enable = true,
-	    },
-	  },
-	  procMacro = {
-	    enable = true,
-	  },
-	}
-      }
-    })
-    vim.lsp.enable('rust_analyzer')
+	local bufnr = args.buf
+	local client = vim.lsp.get_client_by_id(args.data.client_id)
 
-    vim.lsp.config('clangd', {
-      cmd = {"clangd", "--compile-commands-dir=."},
-    })
-    vim.lsp.enable('clangd')
+	-- ========== Core navigation ==========
+	map(bufnr, "n", "gd", vim.lsp.buf.definition, "LSP: Go to definition")
+	map(bufnr, "n", "gD", vim.lsp.buf.declaration, "LSP: Go to declaration")
+	map(bufnr, "n", "gi", vim.lsp.buf.implementation, "LSP: Go to implementation")
+	map(bufnr, "n", "gr", vim.lsp.buf.references, "LSP: References")
+	map(bufnr, "n", "gy", vim.lsp.buf.type_definition, "LSP: Type definition")
 
-    vim.lsp.config('ts_ls', {
-      capabilities = capabilities,
-      init_options = {
-	preferences = {
-	  importModuleSpecifierPreference = "non-relative",
-	},
-      },
-      on_attach = function(client, bufnr)
-	client.server_capabilities.documentFormattingProvider = false
-	client.server_capabilities.documentRangeFormattingProvider = false
+	-- ========== Hover / signature ==========
+	-- Note: if you disable hoverProvider on some clients (e.g. ruff),
+	-- another client (e.g. pyright) will handle it.
+	map(bufnr, "n", "K", vim.lsp.buf.hover, "LSP: Hover docs")
+	map(bufnr, "n", "<C-k>", vim.lsp.buf.signature_help, "LSP: Signature help")
+
+	-- ========== Code actions / rename ==========
+	map(bufnr, "n", "<leader>rn", vim.lsp.buf.rename, "LSP: Rename symbol")
+	map(bufnr, { "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, "LSP: Code action")
+
+	-- ========== Diagnostics ==========
+	map(bufnr, "n", "<leader>e", vim.diagnostic.open_float, "Diag: Show line diagnostics")
+	map(bufnr, "n", "[d", vim.diagnostic.goto_prev, "Diag: Prev diagnostic")
+	map(bufnr, "n", "]d", vim.diagnostic.goto_next, "Diag: Next diagnostic")
+	map(bufnr, "n", "<leader>q", vim.diagnostic.setloclist, "Diag: Diagnostics to loclist")
+
+	-- Optional: quick diagnostic list
+	-- map(bufnr, "n", "<leader>Q", vim.diagnostic.setqflist, "Diag: Diagnostics to quickfix")
+
+	-- ========== Formatting ==========
+	-- If you already do format-on-save (like ruff only), keep this as a manual format.
+	map(bufnr, "n", "<leader>f", function()
+	  vim.lsp.buf.format({ async = true })
+	end, "LSP: Format buffer")
+
+	-- ========== Workspace ==========
+	map(bufnr, "n", "<leader>wa", vim.lsp.buf.add_workspace_folder, "LSP: Add workspace folder")
+	map(bufnr, "n", "<leader>wr", vim.lsp.buf.remove_workspace_folder, "LSP: Remove workspace folder")
+	map(bufnr, "n", "<leader>wl", function()
+	  print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+	end, "LSP: List workspace folders")
+
+	-- ========== LSP info/debug ==========
+	map(bufnr, "n", "<leader>li", "<cmd>LspInfo<cr>", "LSP: Info")
+	map(bufnr, "n", "<leader>ll", function()
+	  local name = client and client.name or "?"
+	  print("LSP client: " .. name)
+	end, "LSP: Print client name")
       end,
     })
-    vim.lsp.enable('ts_ls')
 
-    vim.lsp.config('eslint', {
-      capabilities = capabilities,
-      on_attach= function(client, bufnr)
-	vim.api.nvim_create_autocmd("BufWritePre", {
-	  buffer = bufnr,
-	  command = "EslintFixAll",
-	}) 
-      end,
-    })
-    vim.lsp.enable('eslint')
   end,
 }
