@@ -3,7 +3,9 @@ return {
   ft = 'typst',
   version = '1.*',
   opts = {
-    open_cmd = 'google-chrome --app=%s --user-data-dir=$HOME/.cache/typstpreview-profile --ozone-platform=x11 2>/dev/null',
+    open_cmd = string.format(
+      'google-chrome --app=%%s --user-data-dir=%s/.cache/typstpreview-profile --ozone-platform=wayland 2>/dev/null',
+      vim.fn.expand("~")
+    ),
   },
-
 }
