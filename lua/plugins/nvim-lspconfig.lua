@@ -5,6 +5,18 @@ return {
     "BufNewFile"
   },
   config = function()
+    local servers = {
+      "basedpyright",
+      "clangd",
+      "eslint",
+      "ruff",
+      "rust_analyzer",
+      "texlab",
+      "tinymist",
+      "ts_ls",
+    }
+    vim.lsp.enable(servers)
+
     -- nvim-lspconfig.lua (or wherever you configure LSP)
     -- Put this somewhere that is guaranteed to run (plugin config).
 

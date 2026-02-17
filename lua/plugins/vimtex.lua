@@ -17,7 +17,4 @@ return {
     vim.o.conceallevel = 2
     vim.g.tex_conceal = "abdmg"
   end,
-  option = function()
-    require("vimtex").setup()
-  end,
 }
