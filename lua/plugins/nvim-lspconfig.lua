@@ -58,7 +58,7 @@ return {
 
 	-- ========== Formatting ==========
 	-- If you already do format-on-save (like ruff only), keep this as a manual format.
-	map(bufnr, "n", "<leader>f", function()
+	map(bufnr, "n", "<leader>lf", function()
 	  vim.lsp.buf.format({ async = true })
 	end, "LSP: Format buffer")
 
